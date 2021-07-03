@@ -1,10 +1,12 @@
-package com.ffcactus.app.meeting;
+package com.ffcactus.app.meeting.repository;
 
+import com.ffcactus.app.meeting.repository.MeetingRepository;
 import com.ffcactus.app.meeting.sdk.Booking;
 import com.ffcactus.app.meeting.sdk.MeetingConfiguration;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A SQL style DB implementation. It's just a mock.
@@ -12,8 +14,10 @@ import java.util.*;
 public class MeetingRepositoryImpl implements MeetingRepository {
     private MeetingConfiguration configuration;
 
-    // Using tree map here. In SQL we can sort by start date.
-    private Map<LocalDate, List<Booking>> allBookings = new TreeMap<>();
+    /**
+     * The map saving all the bookings for each of date. Using tree map here. In SQL we can sort by start date.
+     */
+    private final Map<LocalDate, List<Booking>> allBookings = new TreeMap<>();
 
     @Override
     public void saveConfiguration(MeetingConfiguration configuration) {
@@ -25,6 +29,11 @@ public class MeetingRepositoryImpl implements MeetingRepository {
         return configuration;
     }
 
+    /**
+     * Get all the booking of the dates and sort the bookings by start time.
+     * @param date The specific date for the meetings.
+     * @return The sorted bookings of the date.
+     */
     @Override
     public List<Booking> getAndSortMeetingOfDate(LocalDate date) {
         List<Booking> bookings = allBookings.get(date);
@@ -32,10 +41,14 @@ public class MeetingRepositoryImpl implements MeetingRepository {
             return new ArrayList<>();
         }
 
-        Collections.sort(bookings, Booking.startTimeComparator);
+        bookings.sort(Booking.startTimeComparator);
         return bookings;
     }
 
+    /**
+     * Save the booking. The booking will be saved to the list that contains all the bookings of that date.
+     * @param booking The booking to save.
+     */
     @Override
     public void saveBooking(Booking booking) {
         LocalDate startDate = booking.getStartDate();
@@ -47,5 +60,15 @@ public class MeetingRepositoryImpl implements MeetingRepository {
         } else {
             bookings.add(booking);
         }
+    }
+
+    /**
+     * Get dates that have bookings and sort the dates.
+     * @return The dates that is sorted.
+     */
+    @Override
+    public List<LocalDate> getSortedBookingDates() {
+        Set<LocalDate> dates = allBookings.keySet();
+        return dates.stream().sorted().collect(Collectors.toList());
     }
 }

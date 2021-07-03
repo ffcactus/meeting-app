@@ -1,10 +1,9 @@
 package com.ffcactus.app.meeting;
 
-import com.ffcactus.app.meeting.sdk.BookedMeeting;
-import com.ffcactus.app.meeting.sdk.Booking;
-import com.ffcactus.app.meeting.sdk.InvalidBookingException;
-import com.ffcactus.app.meeting.sdk.MeetingConfiguration;
+import com.ffcactus.app.meeting.repository.MeetingRepository;
+import com.ffcactus.app.meeting.sdk.*;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
@@ -78,10 +77,14 @@ public class MeetingServiceImpl implements MeetingService {
         }
 
         // Now we have at least one booked meeting. Now we check if the new meeting can be set as the first one or the last one.
-        if (booking.getEndTime().isBefore(currentBookings.get(0).getStartTime())) {
+        LocalTime bookingStart = booking.getStartTime();
+        LocalTime bookingEnd = booking.getEndTime();
+        LocalTime firstStart = currentBookings.get(0).getStartTime();
+        LocalTime lastEnd = currentBookings.get(currentBookings.size() - 1).getEndTime();
+        if (bookingEnd.isBefore(firstStart) || bookingEnd.equals(firstStart)) {
             return true;
         }
-        if (booking.getStartTime().isAfter(currentBookings.get(currentBookings.size() - 1).getEndTime())) {
+        if (bookingStart.isAfter(lastEnd) || bookingStart.equals(lastEnd)) {
             return true;
         }
 
@@ -95,8 +98,7 @@ public class MeetingServiceImpl implements MeetingService {
         for (int i = 0; i < currentBookings.size() - 2; i++) {
             LocalTime gapStart = currentBookings.get(i).getEndTime();
             LocalTime gapEnd = currentBookings.get(i + 1).getStartTime();
-            LocalTime bookingStart = booking.getStartTime();
-            LocalTime bookingEnd = booking.getEndTime();
+
             boolean startSatisfied = bookingStart.equals(gapStart) || bookingStart.isAfter(gapStart);
             boolean endSatisfied = bookingEnd.equals(gapEnd) || bookingEnd.isBefore(gapEnd);
             if (startSatisfied && endSatisfied) {
@@ -106,9 +108,23 @@ public class MeetingServiceImpl implements MeetingService {
         return false;
     }
 
+    /**
+     * Get sorted booking dates from repository.
+     * @return The sorted booking dates.
+     */
     @Override
-    public List<BookedMeeting> getBookedMeeting(Date day) {
-        return null;
+    public List<LocalDate> getSortedBookingDates() {
+        return repository.getSortedBookingDates();
+    }
+
+    /**
+     * Get sorted booking of a specific date from repository.
+     * @param date The date to query.
+     * @return The sorted booking.
+     */
+    @Override
+    public List<Booking> getAndSortBookingsOfDate(LocalDate date) {
+        return repository.getAndSortMeetingOfDate(date);
     }
 }
 

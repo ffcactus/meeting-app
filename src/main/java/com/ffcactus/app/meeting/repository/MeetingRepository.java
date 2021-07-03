@@ -1,7 +1,6 @@
-package com.ffcactus.app.meeting;
+package com.ffcactus.app.meeting.repository;
 
 import com.ffcactus.app.meeting.sdk.Booking;
-import com.ffcactus.app.meeting.sdk.BookedMeeting;
 import com.ffcactus.app.meeting.sdk.MeetingConfiguration;
 
 import java.time.LocalDate;
@@ -30,7 +29,13 @@ public interface MeetingRepository {
 
     /**
      * Save a booking.
-     * @param booking
+     * @param booking The booking to save.
      */
     void saveBooking(Booking booking);
+
+    /**
+     * Return all the dates that has a bookings. The dates will be sorted.
+     * @return The sorted booking dates.
+     */
+    List<LocalDate> getSortedBookingDates();
 }

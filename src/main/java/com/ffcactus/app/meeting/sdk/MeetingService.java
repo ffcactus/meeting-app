@@ -1,11 +1,6 @@
-package com.ffcactus.app.meeting;
+package com.ffcactus.app.meeting.sdk;
 
-import com.ffcactus.app.meeting.sdk.Booking;
-import com.ffcactus.app.meeting.sdk.BookedMeeting;
-import com.ffcactus.app.meeting.sdk.InvalidBookingException;
-import com.ffcactus.app.meeting.sdk.MeetingConfiguration;
-
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -33,9 +28,15 @@ public interface MeetingService {
     Boolean book(Booking request) throws InvalidBookingException;
 
     /**
+     * Get all the dates that have valid bookings, and sort the dates.
+     * @return The sorted booking dates.
+     */
+    List<LocalDate> getSortedBookingDates();
+
+    /**
      * List the current meetings that are booked on a specific day.
-     * @param day The day to query.
+     * @param date The day to query.
      * @return The list of the meetings that are booked.
      */
-    List<BookedMeeting> getBookedMeeting(Date day);
+    List<Booking> getAndSortBookingsOfDate(LocalDate date);
 }
